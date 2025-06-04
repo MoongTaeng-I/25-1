@@ -2,117 +2,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const navbar = document.getElementById('navbar');
     let lastScrollTop = 0;
 
+    // Navigation Bar Scroll Effect
     window.addEventListener('scroll', () => {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop > lastScrollTop && scrollTop > navbar.offsetHeight) {
-            navbar.style.top = `-${navbar.offsetHeight}px`;
-        } else {
-            navbar.style.top = '0';
+        if (navbar) { // Ensure navbar exists
+            if (scrollTop > lastScrollTop && scrollTop > navbar.offsetHeight) {
+                navbar.style.top = `-${navbar.offsetHeight}px`;
+            } else {
+                navbar.style.top = '0';
+            }
+            if (scrollTop > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
         }
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-
-        if (scrollTop > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
     });
 
+    // Particles.js Initialization
     if (document.getElementById('particles-js')) {
         const particleColor = getComputedStyle(document.documentElement)
-                              .getPropertyValue('--hero-particle-color').trim() || '#0098D9'; // 현재 파티클 색상 (style.css에서 --primary-accent-color인 #0098D9로 설정됨)
-
+                              .getPropertyValue('--hero-particle-color').trim() || '#0098D9';
         particlesJS('particles-js', {
             "particles": {
-                "number": {
-                    "value": 70, // 파티클 개수 증가 (기존 60)
-                    "density": { "enable": true, "value_area": 800 }
-                },
-                "color": { "value": particleColor }, // 이 색상을 더 어둡게 하려면 style.css에서 --hero-particle-color 값을 var(--font-color) 등으로 변경 가능
-                "shape": {
-                    "type": "circle",
-                    "stroke": { "width": 0, "color": "#000000" }
-                },
-                "opacity": {
-                    "value": 0.6, // 파티클 투명도 증가 (기존 0.4) -> 더 진하게 보임
-                    "random": true,
-                    "anim": { "enable": false, "speed": 1, "opacity_min": 0.1, "sync": false }
-                },
-                "size": {
-                    "value": 3.5, // 파티클 크기 증가 (기존 2.5)
-                    "random": true,
-                    "anim": { "enable": false, "speed": 40, "size_min": 0.1, "sync": false }
-                },
-                "line_linked": {
-                    "enable": true,
-                    "distance": 150, // 연결선 거리 유지 또는 약간 증가
-                    "color": particleColor,
-                    "opacity": 0.5, // 연결선 투명도 증가 (기존 0.3) -> 더 진하게 보임
-                    "width": 1
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 2, // 속도는 취향에 따라 조절 (기존 2.5)
-                    "direction": "none",
-                    "random": true,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false,
-                    "attract": { "enable": false, "rotateX": 600, "rotateY": 1200 }
-                }
+                "number": { "value": 70, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": particleColor },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.6, "random": true },
+                "size": { "value": 3.5, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": particleColor, "opacity": 0.5, "width": 1 },
+                "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false, "out_mode": "out" }
             },
             "interactivity": {
                 "detect_on": "canvas",
-                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": false, "mode": "push" }, "resize": true },
-                "modes": {
-                    "grab": { "distance": 140, "line_linked": { "opacity": 0.8 } }, // grab 시 연결선 투명도 증가
-                    "bubble": {}, "repulse": {}, "push": {}, "remove": {}
-                }
+                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": false } },
+                "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.8 } } }
             },
             "retina_detect": true
         });
     }
 
-    const sections = document.querySelectorAll('section');
-    const toolLogos = document.querySelectorAll('.tool-logo-item');
-    const revealSection = (entries, observer) => {
+    // Section Scroll Reveal
+    const sections = document.querySelectorAll('section.section-padding'); // Target sections with specific class for reveal
+    const sectionObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                if (entry.target.id === 'tools') {
-                    toolLogos.forEach((logo, index) => {
-                        setTimeout(() => {
-                            logo.classList.add('revealed');
-                        }, index * 100);
-                    });
-                }
+                // observer.unobserve(entry.target); // Uncomment if you want the animation only once
+            } else {
+                // entry.target.classList.remove('visible'); // Uncomment to re-animate when scrolling back up
             }
         });
-    };
-    const sectionObserver = new IntersectionObserver(revealSection, {
-        root: null,
-        threshold: 0.1,
-    });
-    sections.forEach(section => {
-        sectionObserver.observe(section);
-    });
+    }, { threshold: 0.1 });
+    sections.forEach(section => sectionObserver.observe(section));
 
+    // Active Navigation Link
     const navLinks = document.querySelectorAll('#navbar ul li a');
     const updateActiveNav = () => {
         let currentSectionId = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= sectionTop - navbar.offsetHeight - 50 && pageYOffset < sectionTop + sectionHeight - navbar.offsetHeight - 50) {
-                currentSectionId = section.getAttribute('id');
-            }
-        });
         const heroSection = document.getElementById('hero');
-        if (heroSection) {
-            const heroBottom = heroSection.offsetTop + heroSection.clientHeight;
-             if (pageYOffset < heroBottom - navbar.offsetHeight - 50) {
-                currentSectionId = 'hero';
-            }
+        const navHeight = navbar ? navbar.offsetHeight : 70; // Fallback nav height
+
+        if (heroSection && pageYOffset < heroSection.offsetTop + heroSection.clientHeight - navHeight - 50) {
+            currentSectionId = 'hero';
+        } else {
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - navHeight - 50) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
         }
         navLinks.forEach(link => {
             link.classList.remove('active');
@@ -122,23 +82,123 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     window.addEventListener('scroll', updateActiveNav);
-    updateActiveNav();
+    updateActiveNav(); // Initial call
 
-    const modalButtons = document.querySelectorAll('.work-item-details-button');
-    const modals = document.querySelectorAll('.modal');
-    const closeButtons = document.querySelectorAll('.close-button');
-    modalButtons.forEach(button => {
+    // Skills & Tools Carousel
+    const toolCarouselTrack = document.querySelector('.tool-logos-track');
+    if (toolCarouselTrack) {
+        const logos = Array.from(toolCarouselTrack.children);
+        // Duplicate logos for seamless loop
+        logos.forEach(logo => {
+            const clone = logo.cloneNode(true);
+            toolCarouselTrack.appendChild(clone);
+        });
+
+        // Set spacing (margin-right) for each logo item
+        const logoWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--logo-width')) || 70;
+        const logoSpacing = logoWidth * 1.5;
+        toolCarouselTrack.querySelectorAll('.tool-logo-item').forEach(item => {
+            item.style.marginRight = `${logoSpacing}px`;
+        });
+        
+        const totalWidthOfOriginalLogos = logos.reduce((acc, logo) => {
+            return acc + logo.offsetWidth + logoSpacing;
+        }, 0);
+
+        toolCarouselTrack.style.width = `${totalWidthOfOriginalLogos * 2}px`; // Track width for original + cloned
+
+        // Animation
+        const animationDuration = logos.length * 5; // Adjust speed: higher number = slower (e.g., 5 seconds per logo)
+        toolCarouselTrack.style.animation = `scrollLogos ${animationDuration}s linear infinite`;
+
+        // Create @keyframes rule dynamically if not in CSS (or ensure it's in CSS)
+        if (!document.styleSheets[0].cssRules || ![...document.styleSheets[0].cssRules].some(rule => rule.name === 'scrollLogos')) {
+            const styleSheet = document.styleSheets[0]; // Assumes style.css is the first stylesheet
+            try {
+                 styleSheet.insertRule(`
+                    @keyframes scrollLogos {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-${totalWidthOfOriginalLogos}px); }
+                    }
+                `, styleSheet.cssRules.length);
+            } catch (e) {
+                console.warn("Could not insert scrollLogos keyframes dynamically. Ensure it's in CSS.", e);
+                // Fallback or ensure it's in style.css:
+                // @keyframes scrollLogos {
+                //   0% { transform: translateX(0); }
+                //   100% { transform: translateX(-50%); } /* If track width is 2x total content width */
+                // }
+                // If using translateX(-50%), then toolCarouselTrack.style.width must be totalWidthOfOriginalLogos * 2
+            }
+        }
+         // Optional: Pause animation on hover
+        toolCarouselTrack.addEventListener('mouseenter', () => {
+            toolCarouselTrack.style.animationPlayState = 'paused';
+        });
+        toolCarouselTrack.addEventListener('mouseleave', () => {
+            toolCarouselTrack.style.animationPlayState = 'running';
+        });
+    }
+
+
+    // Work Experience Tabs
+    const tabButtons = document.querySelectorAll('.work-tab-button');
+    const workItems = document.querySelectorAll('.work-item');
+
+    if (tabButtons.length > 0 && workItems.length > 0) {
+        // Function to filter work items
+        const filterWorkItems = (category) => {
+            workItems.forEach((item, index) => {
+                const itemCategory = item.getAttribute('data-category');
+                if (category === 'all' || itemCategory === category) {
+                    item.classList.remove('hidden-item');
+                    // Staggered animation for items appearing
+                    // item.style.animationDelay = `${index * 0.05}s`; // Only if CSS animation is complex
+                    item.style.display = ''; // Or 'grid', 'flex' if it's part of such layout
+                } else {
+                    item.classList.add('hidden-item');
+                    item.style.display = 'none';
+                }
+            });
+        };
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const category = button.getAttribute('data-category');
+                filterWorkItems(category);
+            });
+        });
+
+        // Initial filter (show items of the initially active tab)
+        const activeTab = document.querySelector('.work-tab-button.active');
+        if (activeTab) {
+            filterWorkItems(activeTab.getAttribute('data-category'));
+        } else {
+            filterWorkItems('activity'); // Default if no active tab set
+        }
+    }
+
+
+    // Modal Functionality
+    const modalTriggerButtons = document.querySelectorAll('.work-item-details-button');
+    const allModals = document.querySelectorAll('.modal');
+    const closeModalButtons = document.querySelectorAll('.close-button');
+
+    modalTriggerButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
             const modalId = button.getAttribute('data-modal-target');
             const modal = document.querySelector(modalId);
             if (modal) {
                 modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
             }
         });
     });
-    closeButtons.forEach(button => {
+
+    closeModalButtons.forEach(button => {
         button.addEventListener('click', () => {
             const modal = button.closest('.modal');
             if (modal) {
@@ -147,35 +207,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    window.addEventListener('click', (e) => {
-        modals.forEach(modal => {
+
+    window.addEventListener('click', (e) => { // Close modal if clicked outside content
+        allModals.forEach(modal => {
             if (e.target === modal) {
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
             }
         });
     });
-
+    
+    // Footer Current Year
     const currentYearSpan = document.getElementById('current-year');
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
     }
 
+    // Cursor Glow Effect
     const cursorGlow = document.getElementById('cursor-glow');
-    // window.matchMedia와 해당 matches 속성이 존재하는지 안전하게 확인
     const hasFinePointer = window.matchMedia && typeof window.matchMedia === 'function' && window.matchMedia('(pointer: fine)').matches;
-
     if (cursorGlow && hasFinePointer) {
         document.addEventListener('mousemove', (e) => {
             cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
         });
-        document.body.addEventListener('mouseleave', () => {
-            if(cursorGlow) cursorGlow.style.opacity = '0';
-        });
-        document.body.addEventListener('mouseenter', () => {
-            if(cursorGlow) cursorGlow.style.opacity = '1';
-        });
+        document.body.addEventListener('mouseleave', () => { if (cursorGlow) cursorGlow.style.opacity = '0'; });
+        document.body.addEventListener('mouseenter', () => { if (cursorGlow) cursorGlow.style.opacity = '1'; });
     } else if (cursorGlow) {
-        cursorGlow.style.display = 'none';
+        cursorGlow.style.display = 'none'; // Hide on touch devices or if matchMedia not supported
     }
 });
