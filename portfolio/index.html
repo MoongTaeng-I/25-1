@@ -9,18 +9,23 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="intro-loader">
-    <div class="loader-scanline"></div>
+    
+
+   <div id="intro-loader">
+    <div class="loader-noise"></div>
+    <div class="loader-corner top-left"></div>
+    <div class="loader-corner top-right"></div>
+    <div class="loader-corner bottom-left"></div>
+    <div class="loader-corner bottom-right"></div>
+
     <div class="loader-content">
-        <p class="loader-line line-1">[SYSTEM_CHECK]... OK</p>
-        <p class="loader-line line-2">[LOAD_PORTFOLIO]...</p>
+        <div class="loader-status-text">[BOOTING_SEQUENCE_V4]...</div>
         <div class="progress-bar-container">
             <div id="progress-bar"></div>
         </div>
-        <p class="loader-line line-3 glitch-text" data-text="INIT_SEQUENCE_COMPLETE">INIT_SEQUENCE_COMPLETE</p>
-        <h2 class="loader-line line-4 glitch-text" data-text="WELCOME, GAMER DESIGNER">WELCOME, GAMER DESIGNER</h2>
+        <div class="loader-final-text">Gamer Designer Portfolio</div>
     </div>
-    </div>
+</div>
 
     <div id="background-grid"></div>
 
